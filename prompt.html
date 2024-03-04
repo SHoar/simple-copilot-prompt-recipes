@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Copilot Prompt Recipe</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+        <style>
+            body {
+                background-color: #f5f5f5;
+            }
+
+            .page-title {
+                background-color: bisque;
+                position: sticky;
+                top: 0;
+                margin-bottom: 2em;
+                border-bottom: 2px solid black;
+            }
+
+            .form-container {
+                background-color: #f5f5f5;
+                padding: 20px;
+                margin: 0 auto;
+                margin-top: 1.2em;
+                max-width: 500px;
+
+            }
+
+            #simplePromptForm,
+            #dataAnalysisPromptForm {
+                display: none;
+            }
+
+            label {
+                font-weight: 800;
+                line-height: 3em;
+            }
+
+            input[type="text"] {
+                width: full-width;
+                padding: 10em;
+                margin-bottom: 10em;
+            }
+
+            .compiledResponse {
+                background-color: rgb(171, 184, 98);
+                border: 2px solid black;
+                width: full-width;
+                height: 100%;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h2 class="page-title">Copilot Prompt Recipe</h2>
+        <h5>See <a href="https://adoption.microsoft.com/files/copilot/Prompt-ingredients-one-pager.pdf"
+                _target="blank">Prompt Ingredients One Pager</a> for more</h4>
+
+            <div class="form-container">
+                <label for="simplePrompt">
+                    <input type="radio" id="simplePrompt" name="promptType" value="simplePrompt">
+                    <span>Standard Prompt</span>
+                </label>
+                <label for="dataAnalysisPrompt">
+                    <input type="radio" id="dataAnalysisPrompt" name="promptType" value="dataAnalysis">
+                    <span>SharePoint Data Analysis Prompt</span>
+                </label>
+                <div id="simplePromptForm">
+
+                    <form id="standardPrompt">
+
+                        <field>
+                            <label for="goal_sp">Goal:</label><br>
+                            <info>Clearly state what you need.</info>
+                            <input type="text" id="goal_sp" name="goal_sp"><br>
+                        </field>
+                        <field>
+                            <label for="context_sp">Context:</label><br>
+                            <info>Explain why you need it and who is involved.</info>
+                            <input type="text" id="context_sp" name="context_sp"><br>
+                        </field>
+                        <field>
+                            <label for="source_sp">Source:</label><br>
+                            <info>Specify any relevant sources or examples I should use</info>
+                            <input type="text" id="source_sp" name="source_sp"><br>
+                        </field>
+                        <field>
+                            <label for="expectations_sp">Expectations:</label><br>
+                            <info>How should Copilot respond
+                                to best meet your expectations?</info>
+                            <input type="text" id="expectations_sp" name="expectations_sp"><br>
+                        </field>
+
+
+                    </form>
+                </div>
+
+                <div id="dataAnalysisPromptForm">
+                    <form id="dataAnalysisPrompt">
+
+                        <field>
+                            <label for="role_da">Role:</label><br>
+                            <info>The specific role or persona within your enterprise</info>
+                            <input type="text" id="role_da" name="role_da"><br>
+                        </field>
+                        <field>
+                            <label for="action_da">Action:</label><br>
+                            <info>The action or task you want to perform</info>
+                            <input type="text" id="action_da" name="action_da"><br>
+                        </field>
+                        <field>
+                            <label for="context_da">Context:</label><br>
+                            <info>The relevant context or scenario</info>
+                            <input type="text" id="context_da" name="context_da"><br>
+                        </field>
+                        <field>
+                            <label for="data_da">Data:</label><br>
+                            <info>The type of data you’re working with</info>
+                            <input type="text" id="data_da" name="data_da"><br>
+                        </field>
+                        <field>
+                            <label for="source_da">Source:</label><br>
+                            <info>The source of the data</info>
+                            <input type="text" id="source_da" name="source_da"><br>
+                        </field>
+                        <field>
+                            <label for="addtl_da">Additional Context</label><br>
+                            <info>Optioal</info>
+                            <textarea id="addtl_da"></textarea>
+                        </field>
+
+                    </form>
+                </div>
+                <div id="submit">
+
+                    <input type="button" value="Compile" onclick="compileInputs()"
+                        style="width: 100%; padding: 10px; margin-bottom: 10px;">
+                </div>
+
+            </div>
+            <section class="compiledResponse">
+                <p id="compiledText"></p>
+            </section>
+
+
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+            <script>
+                window.onload = () => {
+                    document.getElementById('simplePrompt').addEventListener('change', function () {
+                        if (this.checked) {
+                            document.getElementById('simplePromptForm').style.display = 'block';
+                            document.getElementById('goal_sp').setAttribute('required', '');
+                        } else {
+                            document.getElementById('simplePromptForm').style.display = 'none';
+                            document.getElementById('goal_sp').removeAttribute('required');
+                        }
+                    });
+
+                    document.getElementById('dataAnalysisPrompt').addEventListener('change', function () {
+                        if (this.checked) {
+                            document.getElementById('dataAnalysisPromptForm').style.display = 'block';
+                            document.getElementById('goal_da').setAttribute('required', '');
+                        } else {
+                            document.getElementById('dataAnalysisPromptForm').style.display = 'none';
+                            document.getElementById('goal_da').removeAttribute('required');
+                        }
+                    });
+                }
+                function validateAndFixSentenceEndings([...strs]) {
+                    // Regular expression to match valid sentence endings (period, question mark, or exclamation mark, colons and semicolons)
+                    const sentenceEndingRegex = /[.!?:;]$/;
+                    // Check each input string
+                    let strings = []
+                    for (let i = 0; i < strs.length; i++) {
+                        const str = strs[i];
+                        if (!sentenceEndingRegex.test(str)) {
+                            strings[i] = str + '.';
+                        }
+                    }
+                    return strings.join(" ");
+                }
+                function compileInputs() {
+                    let promptType = document.querySelector('input[name="promptType"]:checked').value;
+                    console.log(promptType)
+                    let stdPrmptVals = ['goal_sp', 'context_sp', 'action_sp', 'expectations_sp']
+                    let dataAnalysisPrmptVals = ['role_da', 'context_da', 'action_da', 'data_da', 'source_da', 'addtl_da']
+                    let inputSrcs = promptType === 'simplePrompt' ? stdPrmptVals : dataAnalysisPrmptVals;
+                    let vals = []
+                    for (let prmptVal of inputSrcs) {
+                        const prmptValValue = document.getElementById(prmptVal)
+                        vals.push(prmptValValue.value);
+                    }
+
+                    const compiledText = validateAndFixSentenceEndings(vals);
+                    document.getElementById("compiledText").textContent = compiledText || 'Was unable to compile';
+                }
+            </script>
+
+    </body>
+
+</html>
