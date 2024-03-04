@@ -1,0 +1,1 @@
+# simple-copilot-prompt-recipes
